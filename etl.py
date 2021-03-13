@@ -138,7 +138,7 @@ with open(file, encoding = 'utf8') as f:
 
 ## TO-DO: Add in the SELECT statement to verify the data was entered into the table
 ### 1. Give me the artist, song title and song's length in the music app history that was heard during  sessionId = 338, and itemInSession  = 4
-print("Query 1: Provide artist, song title and song's length where sessionId=338 and itemInSession=4")
+print("\nQuery 1: Provide artist, song title and song's length where sessionId=338 and itemInSession=4 ----->")
 query = "select artist, song_title, length from song_library WHERE SESSION_ID=338 AND ITEM_IN_SESSION=4"
 try:
     rows = session.execute(query)
@@ -170,8 +170,8 @@ with open(file, encoding = 'utf8') as f:
         query = query + "VALUES (%s, %s, %s, %s, %s, %s, %s)"
         session.execute(query, (int(line[10]), int(line[8]), line[0], line[9], line[1], line[4], int(line[3])))
 
-print("Query 2: Provide name of artist, song (sorted by itemInSession) and user (first and last name)\
- for userid = 10, sessionid = 182")
+print("\nQuery 2: Provide name of artist, song (sorted by itemInSession) and user (first and last name)\
+ for userid = 10, sessionid = 182 ----->")
 query = "SELECT *\
         FROM table2\
         WHERE user_id=10 AND session_id=182\
@@ -187,6 +187,40 @@ for row in rows:
 
 
 
+## TO-DO: Query 3: Give me every user name (first and last) in 
+#                  my music app history who listened to the song 'All Hands Against His Own'
+query = "CREATE TABLE IF NOT EXISTS user_table "
+query = query + "(song_title text, first_name text, last_name text, PRIMARY KEY (song_title, first_name, last_name))"
+try:
+    session.execute(query)
+except Exception as e:
+    print(e)
+
+file = 'event_datafile_new.csv'
+with open(file, encoding = 'utf8') as f:
+    csvreader = csv.reader(f)
+    next(csvreader) # skip header
+    for line in csvreader:
+        query = "INSERT INTO user_table (song_title, first_name, last_name)"
+        query = query + "VALUES (%s, %s, %s)"
+        # if(line[9] == 'All Hands Against His Own'):
+        #     print(line[1], line[4])
+        session.execute(query, (line[9], line[1], line[4]))
+
+print("\nQuery 3: Give me every user name (first and last) in my music app history who listened to the song 'All Hands Against His Own' ----->")
+query = "SELECT first_name, last_name\
+        FROM user_table\
+        WHERE song_title='All Hands Against His Own'\
+        ORDER BY first_name;"
+try:
+    rows = session.execute(query)
+except Exception as e:
+    print(e)
+    
+for row in rows:
+    print (row.first_name, row.last_name)
+
+
 
 
 
@@ -199,6 +233,12 @@ except Exception as e:
     print(e)
 
 query = "drop table table2"
+try:
+    rows = session.execute(query)
+except Exception as e:
+    print(e)
+
+query = "drop table user_table"
 try:
     rows = session.execute(query)
 except Exception as e:
